@@ -8,23 +8,23 @@ branding:
   color: green
 
 inputs:
-  cluster:
-    description: 'K8s cluster name'
-    required: false
-    default: ''
   server:
     description: 'K8s cluster server URL'
     required: true    
   ca-base64:
     description: 'K8s cluster Certificate Authority data base64'
     required: true
+  cluster:
+    description: 'K8s cluster name'
+    required: false
+    default: ''
+  token:
+    description: 'Service Account bearer token'
+    required: true
   sa:
     description: 'Service Account name'
     required: false
     default: sa
-  token:
-    description: 'Service Account bearer token'
-    required: true
   context:
     description: 'Context name in kubeconfig'
     required: false
@@ -58,5 +58,87 @@ runs:
   steps:
     - id: main
       shell: bash
-      run: . ${{ github.action_path }}/src/main.bash
+      run: |
+        # implementation details
+        
+        # Log to stderr
+        #   $1: level string
+        #   $2: message string
+        #   stderr: message string
+        function kit::log::stderr {
+            local level
+            case "$1" in
+                FATAL|ERR*)     level="\e[1;91m$1\e[0m" ;;
+                WARN*)          level="\e[1;95m$1\e[0m" ;;
+                INFO*|NOTICE)   level="\e[1;92m$1\e[0m" ;;
+                DEBUG)          level="\e[1;96m$1\e[0m" ;;
+                *)              level="\e[1;94m$1\e[0m" ;;
+            esac
+            echo -e "\e[2;97m[\e[0m$level\e[2;97m]\e[0m \e[93m$2\e[0m" >&2
+            #echo "[$(date -Isecond) $1] $2" >&2
+        }
+        
+        # Extract host from an URL
+        #   $1: URL
+        function kit::str::extractHost {
+            local url="$1"
+            url="${url/#*:\/\/}" # Parameter Expansion & Pattern Matching
+            echo -n "${url/%+(:*|\/*)}"
+        }
+        
+        # Flatten JSON to key-value lines
+        #   $1: separator (default as ' 👉 ')
+        function kit::json::flatten {
+            jq -Mcr --arg sep "${1:- 👉 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
+        }
+        
+        # Group stdin to stdout with title
+        # $1: group title
+        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+        function kit::wf::group {
+            echo "::group::$1"      >&2
+            echo "$(< /dev/stdin)"  >&2
+            echo '::endgroup::'     >&2
+        }
+        
+        # Set stdin as value to environment with given name
+        # $1: environment variable name
+        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+        function kit::wf::env {
+            local val
+            val="$(< /dev/stdin)"
+            echo "$1<<__GITHUB_ENV__"   >> "$GITHUB_ENV"
+            echo "$val"                 >> "$GITHUB_ENV"
+            echo '__GITHUB_ENV__'       >> "$GITHUB_ENV"
+            kit::wf::group "💲 append '$1' to \$GITHUB_ENV" <<< "$val"
+        }
+        
+        # Set stdin as value to output of current step with given name
+        # $1: output name
+        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
+        # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
+        function kit::wf::output {
+            local val
+            val="$(< /dev/stdin)"
+            echo "::set-output name=$1::$val" >&2
+            kit::wf::group "💬 set '$1' to step outputs" <<< "$val"
+        }
+        
+        local cluster context path
+        [[ -n '${{ inputs.cluster }}' ]] && cluster='${{ inputs.cluster }}' || cluster="$(kit::str::extractHost '${{ inputs.server }}')"
+        [[ -n '${{ inputs.context }}' ]] && context='${{ inputs.context }}' || context="${{ inputs.sa }}.$cluster"
+        [[ -n '${{ inputs.path }}' ]] && path='${{ inputs.path }}' || path="${{ runner.temp }}/$context.kubeconfig"
+        
+        kit::wf::group '⚙ action inputs' << __HEREDOC__
+        server:     ${{ inputs.server }}
+        ca-base64:  ${{ inputs.ca-base64 }}
+        cluster:    $cluster
+        token:      ${{ inputs.token }}
+        sa:         ${{ inputs.sa }}
+        context:    $context
+        namespace:  ${{ inputs.namespace }}
+        current:    ${{ inputs.current }}
+        export:     ${{ inputs.export }}
+        path:       $path
+        __HEREDOC__
 ...
