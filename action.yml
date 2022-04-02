@@ -9,7 +9,7 @@ branding:
 
 inputs:
   server:
-    description: 'K8s cluster server URL'
+    description: 'K8s cluster API server URL'
     required: true    
   ca-base64:
     description: 'K8s cluster Certificate Authority data base64'
