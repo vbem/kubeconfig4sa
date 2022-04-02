@@ -49,7 +49,7 @@ jobs:
           export: true
           version: false
 
-      - name: show outputs and $GITHUN_ENV
+      - name: show outputs and $GITHUB_ENV
         run: |
           echo "toJson(steps.less.outputs):"
           jq -Ce << __HEREDOC__
@@ -59,6 +59,6 @@ jobs:
           jq -Ce << __HEREDOC__
           ${{ toJson(steps.more.outputs) }}
           __HEREDOC__
-          echo 'show file GITHUN_ENV'
-          cat "$GITHUN_ENV"
+          echo 'show file GITHUB_ENV'
+          cat "$GITHUB_ENV"
 ...
