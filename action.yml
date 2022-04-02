@@ -125,9 +125,9 @@ runs:
             kit::wf::group "💬 set '$1' to step outputs" <<< "$val"
         }
         
-        [[ -n '${{ inputs.cluster }}' ]] && cluster='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost '${{ inputs.server }}')"
-        [[ -n '${{ inputs.context }}' ]] && context='${{ inputs.context }}' || CONTEXT="${{ inputs.sa }}.$cluster"
-        [[ -n '${{ inputs.path }}' ]] && path='${{ inputs.path }}' || PATH="${{ runner.temp }}/$context.kubeconfig"
+        [[ -n '${{ inputs.cluster }}' ]] && CLUSTER='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost '${{ inputs.server }}')"
+        [[ -n '${{ inputs.context }}' ]] && CONTEXT='${{ inputs.context }}' || CONTEXT="${{ inputs.sa }}.$CLUSTER"
+        [[ -n '${{ inputs.path }}' ]] && PATH='${{ inputs.path }}' || PATH="${{ runner.temp }}/$CONTEXT.kubeconfig"
         
         kit::wf::group '⚙ action inputs' << __HEREDOC__
         server:     ${{ inputs.server }}
