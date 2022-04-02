@@ -151,7 +151,9 @@ runs:
           kubectl config set "clusters.$CLUSTER.certificate-authority-data" "$CA_BASE64" >&1
           kubectl config set-credentials "$SA" --token="$TOKEN" >&1
           kubectl config set-context "$CONTEXT" --cluster="$CLUSTER" --user="$SA" --namespace="$NAMESPACE" >&1
-          [[ "$CURRENT" == 'true' ]] && kubectl config use-context "$CONTEXT" >&1
+          if [[ "$CURRENT" == 'true' ]]; then
+            kubectl config use-context "$CONTEXT" >&1
+          fi
         } | kit::wf::group '🚢 kubectl config set'
         kubectl config view --raw=false | yq -Ce | kit::wf::group '🚢 kubectl config view'
 
