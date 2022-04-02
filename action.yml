@@ -123,10 +123,10 @@ runs:
 
         SERVER='${{ inputs.server }}'
         CA_BASE64='${{ inputs.ca-base64 }}'
-        [[ -n '${{ inputs.cluster }}' ]] && CLUSTER='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost '${{ inputs.server }}')"
+        [[ -n '${{ inputs.cluster }}' ]] && CLUSTER='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost "$SERVER")"
         TOKEN='${{ inputs.token }}'
         SA='${{ inputs.sa }}'
-        [[ -n '${{ inputs.context }}' ]] && CONTEXT='${{ inputs.context }}' || CONTEXT="${{ inputs.sa }}.$CLUSTER"
+        [[ -n '${{ inputs.context }}' ]] && CONTEXT='${{ inputs.context }}' || CONTEXT="$SA@$CLUSTER"
         NAMESPACE='${{ inputs.namespace }}'
         CURRENT='${{ inputs.current }}'
         [[ -n '${{ inputs.kubeconfig }}' ]] && KUBECONFIG='${{ inputs.kubeconfig }}' || KUBECONFIG="${{ runner.temp }}/$CONTEXT.kubeconfig"

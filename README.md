@@ -56,7 +56,7 @@ ID | Type | Default | Description
 `cluster` | String | Host part of `server` | K8s cluster name in kubeconfig file
 `token` | String | *Required input* | Service Account bearer token
 `sa` | String | `sa` | Service Account name in kubeconfig file
-`context` | String | `<sa>.<cluster>` | Context name in kubeconfig file
+`context` | String | `<sa>@<cluster>` | Context name in kubeconfig file
 `namespace` | String | `<empty>` | Context namespace in kubeconfig file
 `current` | Bool | `true` | Set as current-context in kubeconfig file
 `kubeconfig` | String | `<runner.temp>/<context>.kubeconfig` | Path of kubeconfig file
