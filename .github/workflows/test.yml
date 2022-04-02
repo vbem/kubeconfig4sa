@@ -25,7 +25,7 @@ jobs:
 
       - name: less input
         id: less
-        uses: '.'
+        uses: ./
         with:
           server: https://1.2.3.4:6443/some-path
           ca-base64: less-ca
@@ -35,7 +35,7 @@ jobs:
 
       - name: more inputs
         id: more
-        uses: '.'
+        uses: ./
         with:
           server: https://more-server:6443
           ca-base64: more-ca
