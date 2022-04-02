@@ -11,7 +11,7 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
 
 ```yaml
 - name: Setup KUBECONFIG
-  uses: vbem/kubeconfig4sa@main
+  uses: vbem/kubeconfig4sa@v1
   with:
     server:     https://your-kubeapi-server:6443
     ca-base64:  ${{ secrets.K8S_CA_BASE64 }}
