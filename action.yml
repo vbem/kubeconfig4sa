@@ -1,0 +1,62 @@
+---
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: Kubernetes Set Context and KUBECONFIG for Service Account (SA)
+author: '@vbem'
+description: Create K8s context and set KUBECONFIG for service account
+branding:
+  icon: settings
+  color: green
+
+inputs:
+  cluster:
+    description: 'K8s cluster name'
+    required: false
+    default: ''
+  server:
+    description: 'K8s cluster server URL'
+    required: true    
+  ca-base64:
+    description: 'K8s cluster Certificate Authority data base64'
+    required: true
+  sa:
+    description: 'Service Account name'
+    required: false
+    default: sa
+  token:
+    description: 'Service Account bearer token'
+    required: true
+  context:
+    description: 'Context name in kubeconfig'
+    required: false
+    default: ''
+  namespace:
+    description: 'Context namespace in kubeconfig'
+    required: false
+    default: ''
+  current:
+    description: 'Set as current-context in kubeconfig'
+    required: false
+    default: true
+  export:
+    description: 'Set the KUBECONFIG environment variable available to subsequent steps'
+    required: false
+    default: true
+  path:
+    description: 'Path of kubeconfig file'
+    required: false
+    default: ''
+
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs-for-composite-actions
+outputs:
+  path:
+    description: Path of kubeconfig file
+    value: ${{ steps.main.outputs.path }}
+
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-composite-actions
+runs:
+  using: composite
+  steps:
+    - id: main
+      shell: bash
+      run: . ${{ github.action_path }}/main.bash
+...
