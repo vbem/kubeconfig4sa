@@ -28,7 +28,7 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
 
 
 Name | Type | Required | Default | Description
---- | --- | --- | ---
+--- | --- | --- | --- | ---
 server | String | Y |  | K8s cluster API server URL
 
 
