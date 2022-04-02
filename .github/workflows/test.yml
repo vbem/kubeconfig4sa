@@ -52,13 +52,13 @@ jobs:
       - name: show outputs and $GITHUN_ENV
         run: |
           echo "toJson(steps.less.outputs):"
-          jq << __HEREDOC__
+          jq -Ce << __HEREDOC__
           ${{ toJson(steps.less.outputs) }}
           __HEREDOC__
           echo "toJson(steps.more.outputs):"
-          jq << __HEREDOC__
+          jq -Ce << __HEREDOC__
           ${{ toJson(steps.more.outputs) }}
           __HEREDOC__
           echo 'show file GITHUN_ENV'
-          cat GITHUN_ENV
+          cat "$GITHUN_ENV"
 ...
