@@ -16,8 +16,8 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
     server:     https://your-kubeapi-server:6443
     ca-base64:  ${{ secrets.K8S_CA_BASE64 }}
     token:      ${{ secrets.K8S_SA_TOKEN }}
-    namespace:  myns
-    
+    namespace:  MYNS
+
 - name: Deploy K8s mainfest files
   run: kubectl apply -f .
 ```
@@ -49,23 +49,23 @@ Remember to store both `K8S_CA_BASE64` & `K8S_SA_TOKEN` in your Git repo's [*Enc
 
 ## Inputs
 
-Name | Type | Required | Default | Description
---- | --- | --- | --- | ---
-`server` | String | Y |  | K8s cluster API server URL
-`ca-base64` | String | Y |  | K8s cluster Certificate Authority data base64
-`cluster` | String |  | Host part of `server` | K8s cluster name in kubeconfig file
-`token` | String | Y |  | Service Account bearer token
-`sa` | String |  | `sa` | Service Account name in kubeconfig file
-`context` | String |  | `<sa>.<cluster>` | Context name in kubeconfig file
-`namespace` | String |  | `<empty>` | Context namespace in kubeconfig file
-`current` | Bool |  | `true` | Set as current-context in kubeconfig file
-`kubeconfig` | String |  | `<runner.temp>/<context>.kubeconfig` | Path of kubeconfig file
-`export` | Bool |  | `true` | Set the KUBECONFIG environment variable available to subsequent steps
-`version` | Bool |  | `true` | Show client and server version information for the current context
+ID | Type | Default | Description
+--- | --- | --- | ---
+`server` | String | *Required input* | K8s cluster API server URL
+`ca-base64` | String  | *Required input* | K8s cluster Certificate Authority data base64
+`cluster` | String | Host part of `server` | K8s cluster name in kubeconfig file
+`token` | String | *Required input* | Service Account bearer token
+`sa` | String | `sa` | Service Account name in kubeconfig file
+`context` | String | `<sa>.<cluster>` | Context name in kubeconfig file
+`namespace` | String | `<empty>` | Context namespace in kubeconfig file
+`current` | Bool | `true` | Set as current-context in kubeconfig file
+`kubeconfig` | String | `<runner.temp>/<context>.kubeconfig` | Path of kubeconfig file
+`export` | Bool | `true` | Set the KUBECONFIG environment variable available to subsequent steps
+`version` | Bool | `true` | Show client and server version information for the current context
 
 ## Outputs
 
-Name | Type | Description
+ID | Type | Description
 --- | --- | ---
 `context` | String | Context name in kubeconfig file
 `kubeconfig` | String | Path of kubeconfig file

@@ -10,7 +10,7 @@ branding:
 inputs:
   server:
     description: 'K8s cluster API server URL'
-    required: true    
+    required: true
   ca-base64:
     description: 'K8s cluster Certificate Authority data base64'
     required: true
@@ -63,11 +63,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - id: main
+    - name: Generate kubeconfig file
+      id: main
       shell: bash
       run: |
         # implementation details
-        
+
         # Extract host from an URL
         #   $1: URL
         #   stdout: host
@@ -78,7 +79,7 @@ runs:
             url="${url/%:*}"
             echo -n "${url/%\/*}"
         }
-        
+
         # Group stdin to stderr with title
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
         #   $1: group title
@@ -90,7 +91,7 @@ runs:
             echo "$(< /dev/stdin)"  >&2
             echo '::endgroup::'     >&2
         }
-        
+
         # Set stdin as value to environment with given name
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
         #   $1: environment variable name
@@ -105,7 +106,7 @@ runs:
             echo '__GITHUB_ENV__'       >> "$GITHUB_ENV"
             kit::wf::group "💲 append '$1' to \$GITHUB_ENV" <<< "$val"
         }
-        
+
         # Set stdin as value to output of current step with given name
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
         # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
@@ -119,7 +120,7 @@ runs:
             echo "::set-output name=$1::$val" >&2
             kit::wf::group "📤 set '$1' to step outputs" <<< "$val"
         }
-        
+
         SERVER='${{ inputs.server }}'
         CA_BASE64='${{ inputs.ca-base64 }}'
         [[ -n '${{ inputs.cluster }}' ]] && CLUSTER='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost '${{ inputs.server }}')"
@@ -131,7 +132,7 @@ runs:
         [[ -n '${{ inputs.kubeconfig }}' ]] && KUBECONFIG='${{ inputs.kubeconfig }}' || KUBECONFIG="${{ runner.temp }}/$CONTEXT.kubeconfig"
         EXPORT='${{ inputs.export }}'
         VERSION='${{ inputs.version }}'
-        
+
         kit::wf::group '📥 action inputs' << __HEREDOC__
         server:     $SERVER
         cluster:    $CLUSTER
@@ -143,7 +144,7 @@ runs:
         export:     $EXPORT
         version:    $VERSION
         __HEREDOC__
-        
+
         declare -rx KUBECONFIG
         {
           kubectl config set-cluster "$CLUSTER" --server="$SERVER" >&1
@@ -153,9 +154,9 @@ runs:
           [[ "$CURRENT" == 'true' ]] && kubectl config use-context "$CONTEXT" >&1
         } | kit::wf::group '🚢 kubectl config set'
         kubectl config view --raw=false | yq -Ce | kit::wf::group '🚢 kubectl config view'
-        
+
         [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group '🚢 kubectl version'
-        
+
         kit::wf::output 'context' <<< "$CONTEXT"
         kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
         [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"

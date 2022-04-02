@@ -1,0 +1,64 @@
+---
+name: Testing
+
+env:
+  TZ: Asia/Shanghai
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
+concurrency:
+  group: ${{ github.workflow }}@${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push: # If you define neither tags(-ignore) nor branches(-ignore), the workflow will run for either branches or tags.
+    paths:
+      - 'action.yml'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
+
+      - name: less input
+        id: less
+        uses: .
+        with:
+          server: https://1.2.3.4:6443/some-path
+          ca-base64: less-ca
+          token: less-token
+          export: false
+          version: false
+
+      - name: more inputs
+        id: more
+        uses: .
+        with:
+          server: https://more-server:6443
+          ca-base64: more-ca
+          cluster: cluster-more-prod
+          token: more-token
+          sa: deployer
+          context: deployer@more
+          namespace: myns
+          current: false
+          kubeconfig: ${{ steps.less.outputs.kubeconfig }}
+          export: true
+          version: false
+
+      - name: show outputs and $GITHUN_ENV
+        run: |
+          echo "toJson(steps.less.outputs):"
+          jq << __HEREDOC__
+          ${{ toJson(steps.less.outputs) }}
+          __HEREDOC__
+          echo "toJson(steps.more.outputs):"
+          jq << __HEREDOC__
+          ${{ toJson(steps.more.outputs) }}
+          __HEREDOC__
+          echo 'cat $GITHUN_ENV'
+          cat GITHUN_ENV
+...
