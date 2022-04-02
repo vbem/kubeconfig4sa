@@ -58,5 +58,5 @@ runs:
   steps:
     - id: main
       shell: bash
-      run: . ${{ github.action_path }}/main.bash
+      run: . ${{ github.action_path }}/src/main.bash
 ...
