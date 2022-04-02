@@ -1,5 +1,7 @@
 [![Testing](https://github.com/vbem/kubeconfig4sa/actions/workflows/test.yml/badge.svg)](https://github.com/vbem/kubeconfig4sa/actions/workflows/test.yml)
 [![Super Linter](https://github.com/vbem/kubeconfig4sa/actions/workflows/linter.yml/badge.svg)](https://github.com/vbem/kubeconfig4sa/actions/workflows/linter.yml)
+[![Marketplace](https://img.shields.io/badge/GitHub%20Actions-Marketplace-orange?logo=github)](https://github.com/marketplace/actions/kubernetes-set-context-and-kubeconfig-for-service-account-sa)
+
 # Set kubeconfig for service account
 
 This action can be used to generate [*kubeconfig file*](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for [Kubernetes native *Service Accounts* (SA)](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/).
