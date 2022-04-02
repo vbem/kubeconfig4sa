@@ -1,5 +1,6 @@
 [![Testing](https://github.com/vbem/kubeconfig4sa/actions/workflows/test.yml/badge.svg)](https://github.com/vbem/kubeconfig4sa/actions/workflows/test.yml)
 [![Super Linter](https://github.com/vbem/kubeconfig4sa/actions/workflows/linter.yml/badge.svg)](https://github.com/vbem/kubeconfig4sa/actions/workflows/linter.yml)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/vbem/kubeconfig4sa?label=Release&logo=github)](https://github.com/vbem/kubeconfig4sa/releases)
 [![Marketplace](https://img.shields.io/badge/GitHub%20Actions-Marketplace-blue?logo=github)](https://github.com/marketplace/actions/kubernetes-set-context-and-kubeconfig-for-service-account-sa)
 
 # Set kubeconfig for service account
