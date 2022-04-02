@@ -15,26 +15,26 @@ inputs:
     description: 'K8s cluster Certificate Authority data base64'
     required: true
   cluster:
-    description: 'K8s cluster name'
+    description: 'K8s cluster name in kubeconfig file'
     required: false
     default: ''
   token:
     description: 'Service Account bearer token'
     required: true
   sa:
-    description: 'Service Account name'
+    description: 'Service Account name in kubeconfig file'
     required: false
     default: sa
   context:
-    description: 'Context name in kubeconfig'
+    description: 'Context name in kubeconfig file'
     required: false
     default: ''
   namespace:
-    description: 'Context namespace in kubeconfig'
+    description: 'Context namespace in kubeconfig file'
     required: false
     default: ''
   current:
-    description: 'Set as current-context in kubeconfig'
+    description: 'Set as current-context in kubeconfig file'
     required: false
     default: true
   kubeconfig:

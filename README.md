@@ -22,19 +22,6 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
   run: kubectl apply -f .
 ```
 
-## Customizing
-
-### inputs
-
-
-Name | Type | Required | Default | Description
---- | --- | --- | --- | ---
-`server` | String | Y |  | K8s cluster API server URL
-`ca-base64` | Base64 String | Y |  | K8s cluster Certificate Authority data base64
-`cluster` | String |  | Host part of `server` | K8s cluster name
-
-
-
 ## SA preparation
 
 Assuming you need to create a service account `deployer` for namespace `MYNS`, and then deploy K8s mainfest files via this action.
@@ -57,3 +44,26 @@ to=$(kubectl get secret $as -n MYNS -o jsonpath='{.data.token}'|base64 -d) && ec
 ```
 
 Remember to store both `K8S_CA_BASE64` & `K8S_SA_TOKEN` in your Git repo's [*Encrypted secrets*](https://docs.github.com/en/actions/security-guides/encrypted-secrets) or [*Environment secrets*](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets).
+
+## Inputs
+
+Name | Type | Required | Default | Description
+--- | --- | --- | --- | ---
+`server` | String | Y |  | K8s cluster API server URL
+`ca-base64` | String | Y |  | K8s cluster Certificate Authority data base64
+`cluster` | String |  | Host part of `server` | K8s cluster name in kubeconfig file
+`token` | String | Y |  | Service Account bearer token
+`sa` | String |  | `sa` | Service Account name in kubeconfig file
+`context` | String |  | `<sa>.<cluster>` | Context name in kubeconfig file
+`namespace` | String |  | `<empty>` | Context namespace in kubeconfig file
+`current` | Bool |  | `true` | Set as current-context in kubeconfig file
+`kubeconfig` | String |  | `<runner.temp>/<context>.kubeconfig` | Path of kubeconfig file
+`export` | Bool |  | `true` | Set the KUBECONFIG environment variable available to subsequent steps
+`version` | Bool |  | `true` | Show client and server version information for the current context
+
+## Outputs
+
+Name | Type | Description
+--- | --- | ---
+`context` | String | Context name in kubeconfig file
+`kubeconfig` | String | Path of kubeconfig file
