@@ -57,7 +57,7 @@ outputs:
     value: ${{ steps.main.outputs.context }}
   kubeconfig:
     description: Path of kubeconfig file
-    value: ${{ steps.main.outputs.path }}
+    value: ${{ steps.main.outputs.kubeconfig }}
 
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-composite-actions
 runs:
