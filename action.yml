@@ -37,18 +37,18 @@ inputs:
     description: 'Set as current-context in kubeconfig'
     required: false
     default: true
+  kubeconfig:
+    description: 'Path of kubeconfig file'
+    required: false
+    default: ''
   export:
     description: 'Set the KUBECONFIG environment variable available to subsequent steps'
     required: false
     default: true
-  path:
-    description: 'Path of kubeconfig file'
-    required: false
-    default: ''
 
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs-for-composite-actions
 outputs:
-  path:
+  kubeconfig:
     description: Path of kubeconfig file
     value: ${{ steps.main.outputs.path }}
 
@@ -122,21 +122,40 @@ runs:
             local val
             val="$(< /dev/stdin)"
             echo "::set-output name=$1::$val" >&2
-            kit::wf::group "💬 set '$1' to step outputs" <<< "$val"
+            kit::wf::group "📤 set '$1' to step outputs" <<< "$val"
         }
         
+        SERVER='${{ inputs.server }}'
+        CA_BASE64='${{ inputs.ca-base64 }}'
         [[ -n '${{ inputs.cluster }}' ]] && CLUSTER='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost '${{ inputs.server }}')"
+        TOKEN='${{ inputs.token }}'
+        SA='${{ inputs.sa }}'
         [[ -n '${{ inputs.context }}' ]] && CONTEXT='${{ inputs.context }}' || CONTEXT="${{ inputs.sa }}.$CLUSTER"
-        [[ -n '${{ inputs.path }}' ]] && PATH='${{ inputs.path }}' || PATH="${{ runner.temp }}/$CONTEXT.kubeconfig"
+        NAMESPACE='${{ inputs.namespace }}'
+        CURRENT='${{ inputs.current }}'
+        [[ -n '${{ inputs.kubeconfig }}' ]] && KUBECONFIG='${{ inputs.kubeconfig }}' || KUBECONFIG="${{ runner.temp }}/$CONTEXT.kubeconfig"
+        EXPORT='${{ inputs.export }}'
         
-        kit::wf::group '⚙ action inputs' << __HEREDOC__
-        server:     ${{ inputs.server }}
+        kit::wf::group '📥 action inputs' << __HEREDOC__
+        server:     $SERVER
         cluster:    $CLUSTER
-        sa:         ${{ inputs.sa }}
+        sa:         $SA
         context:    $CONTEXT
-        namespace:  ${{ inputs.namespace }}
-        current:    ${{ inputs.current }}
-        export:     ${{ inputs.export }}
-        path:       $PATH
+        namespace:  $NAMESPACE
+        current:    $CURRENT
+        kubeconfig: $KUBECONFIG
+        export:     $EXPORT
         __HEREDOC__
+        
+        kit::log::stderr INFO "🚢 'kubectl config' ... for KUBECONFIG='$KUBECONFIG'"
+        declare -rx KUBECONFIG
+        kubectl config set-cluster "$CLUSTER" --server="$SERVER"
+        kubectl config set "clusters.$CLUSTER.certificate-authority-data" "$CA_BASE64"
+        kubectl config set-credentials "$SA" --token="$TOKEN"
+        kubectl config set-context "$CONTEXT" --cluster="$CLUSTER" --user="$SA" --namespace="$NAMESPACE"
+        [[ "$CURRENT" == 'true' ]] && kubectl config use-context "$CONTEXT"
+        
+        kubectl config view --raw=false | yq -Ce | kit::wf::group "🚢 'kubectl config view' for KUBECONFIG='$KUBECONFIG'"
+        
+        
 ...
