@@ -7,6 +7,8 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
 - User accounts are intended to be global. Names must be unique across all namespaces of a cluster. Service accounts are namespaced.
 - Typically, a cluster's user accounts might be synced from a corporate database or cloud IAM, where new user account creation requires special privileges and is tied to complex business processes. Service account creation is intended to be more lightweight, allowing cluster users to create service accounts for specific tasks by following the principle of least privilege.
 
+Meanwhile, as mentioned in GitHub official document: [**Never use structured data as a secret**](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-secrets). Put base64 content of whole *kubeconfig file* into a Github secret can cause secret redaction within logs to fail! Instead, create individual secrets for each sensitive value, such as *CA data* of cluster & *bearer token* of service account.
+
 ## Example usage
 
 ```yaml
