@@ -157,7 +157,7 @@ runs:
 
         [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group '🚢 kubectl version'
 
+        [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
         kit::wf::output 'context' <<< "$CONTEXT"
         kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
-        [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
 ...

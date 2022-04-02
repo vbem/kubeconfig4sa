@@ -1,4 +1,4 @@
-## About
+# About
 
 This action can be used to generate [*kubeconfig file*](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for [Kubernetes native *Service Accounts* (SA)](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/).
 
@@ -7,7 +7,7 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
 - User accounts are intended to be global. Names must be unique across all namespaces of a cluster. Service accounts are namespaced.
 - Typically, a cluster's user accounts might be synced from a corporate database or cloud IAM, where new user account creation requires special privileges and is tied to complex business processes. Service account creation is intended to be more lightweight, allowing cluster users to create service accounts for specific tasks by following the principle of least privilege.
 
-## Example usage
+# Example usage
 
 ```yaml
 - name: Setup KUBECONFIG
@@ -24,7 +24,7 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
 
 ![Example](https://repository-images.githubusercontent.com/476765075/c8bf8e19-72f4-4904-b820-200b2b474d0d "vbem/kubeconfig4sa")
 
-## SA preparation
+# SA preparation
 
 Assuming you need to create a service account `deployer` for namespace `MYNS`, and then deploy K8s mainfest files via this action.
 
@@ -47,7 +47,7 @@ to=$(kubectl get secret $as -n MYNS -o jsonpath='{.data.token}'|base64 -d) && ec
 
 Remember to store both `K8S_CA_BASE64` & `K8S_SA_TOKEN` in your Git repo's [*Encrypted secrets*](https://docs.github.com/en/actions/security-guides/encrypted-secrets) or [*Environment secrets*](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets).
 
-## Inputs
+# Inputs
 
 ID | Type | Default | Description
 --- | --- | --- | ---
@@ -63,7 +63,7 @@ ID | Type | Default | Description
 `export` | Bool | `true` | Set the KUBECONFIG environment variable available to subsequent steps
 `version` | Bool | `true` | Show client and server version information for the current context
 
-## Outputs
+# Outputs
 
 ID | Type | Description
 --- | --- | ---
