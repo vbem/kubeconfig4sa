@@ -22,6 +22,8 @@ It's advised to use **Kubernetes native SA** for deployment workflows rather tha
   run: kubectl apply -f .
 ```
 
+![Example](https://repository-images.githubusercontent.com/476765075/c8bf8e19-72f4-4904-b820-200b2b474d0d "vbem/kubeconfig4sa")
+
 ## SA preparation
 
 Assuming you need to create a service account `deployer` for namespace `MYNS`, and then deploy K8s mainfest files via this action.
