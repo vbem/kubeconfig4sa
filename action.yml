@@ -68,24 +68,6 @@ runs:
       run: |
         # implementation details
         
-        # Log to stderr
-        #   $1: level string
-        #   $2: message string
-        #   stderr: message string
-        #   $?: always 0
-        function kit::log::stderr {
-            local level
-            case "$1" in
-                FATAL|ERR*)     level="\e[1;91m$1\e[0m" ;;
-                WARN*)          level="\e[1;95m$1\e[0m" ;;
-                INFO*|NOTICE)   level="\e[1;92m$1\e[0m" ;;
-                DEBUG)          level="\e[1;96m$1\e[0m" ;;
-                *)              level="\e[1;94m$1\e[0m" ;;
-            esac
-            echo -e "\e[2;97m[\e[0m$level\e[2;97m]\e[0m \e[93m$2\e[0m" >&2
-            #echo "[$(date -Isecond) $1] $2" >&2
-        }
-        
         # Extract host from an URL
         #   $1: URL
         #   stdout: host
@@ -95,15 +77,6 @@ runs:
             url="${url/#*:\/\/}"
             url="${url/%:*}"
             echo -n "${url/%\/*}"
-        }
-        
-        # Flatten JSON to key-value lines
-        #   $1: separator (default as ' 👉 ')
-        #   stdin: json
-        #   stdout: flattened key-value lines
-        #   $?: 0 if successful and non-zero otherwise
-        function kit::json::flatten {
-            jq -Mcr --arg sep "${1:- 👉 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
         }
         
         # Group stdin to stderr with title
@@ -168,23 +141,23 @@ runs:
         current:    $CURRENT
         kubeconfig: $KUBECONFIG
         export:     $EXPORT
+        version:    $VERSION
         __HEREDOC__
         
         declare -rx KUBECONFIG
-        # kit::log::stderr INFO "🚢 'kubectl config' ... for KUBECONFIG='$KUBECONFIG'"
         {
           kubectl config set-cluster "$CLUSTER" --server="$SERVER" >&1
           kubectl config set "clusters.$CLUSTER.certificate-authority-data" "$CA_BASE64" >&1
           kubectl config set-credentials "$SA" --token="$TOKEN" >&1
           kubectl config set-context "$CONTEXT" --cluster="$CLUSTER" --user="$SA" --namespace="$NAMESPACE" >&1
           [[ "$CURRENT" == 'true' ]] && kubectl config use-context "$CONTEXT" >&1
-        } | kit::wf::group "🚢 'kubectl config set' for KUBECONFIG='$KUBECONFIG'"
+        } | kit::wf::group '🚢 kubectl config set'
         
-        kubectl config view --raw=false | yq -Ce | kit::wf::group "🚢 'kubectl config view' for KUBECONFIG='$KUBECONFIG'"
+        kubectl config view --raw=false | yq -Ce | kit::wf::group '🚢 kubectl config view'
         
         kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
         
         [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
         
-        [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group "🚢 'kubectl version' for KUBECONFIG='$KUBECONFIG'"
+        [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group '🚢 kubectl version'
 ...
