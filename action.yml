@@ -144,10 +144,6 @@ runs:
         version:    $VERSION
         __HEREDOC__
         
-        kit::wf::output 'context' <<< "$CONTEXT"
-        kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
-        [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
-        
         declare -rx KUBECONFIG
         {
           kubectl config set-cluster "$CLUSTER" --server="$SERVER" >&1
@@ -159,4 +155,8 @@ runs:
         kubectl config view --raw=false | yq -Ce | kit::wf::group '🚢 kubectl config view'
         
         [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group '🚢 kubectl version'
+        
+        kit::wf::output 'context' <<< "$CONTEXT"
+        kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
+        [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
 ...
