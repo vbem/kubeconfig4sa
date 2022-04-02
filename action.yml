@@ -45,9 +45,16 @@ inputs:
     description: 'Set the KUBECONFIG environment variable available to subsequent steps'
     required: false
     default: true
+  version:
+    description: 'Show client and server version information for the current context'
+    required: false
+    default: true
 
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs-for-composite-actions
 outputs:
+  context:
+    description: 'Context name in kubeconfig'
+    value: ${{ steps.main.outputs.context }}
   kubeconfig:
     description: Path of kubeconfig file
     value: ${{ steps.main.outputs.path }}
@@ -65,6 +72,7 @@ runs:
         #   $1: level string
         #   $2: message string
         #   stderr: message string
+        #   $?: always 0
         function kit::log::stderr {
             local level
             case "$1" in
@@ -80,6 +88,8 @@ runs:
         
         # Extract host from an URL
         #   $1: URL
+        #   stdout: host
+        #   $?: 0 if successful and non-zero otherwise
         function kit::str::extractHost {
             local url="$1" # for Parameter Expansion & Pattern Matching
             url="${url/#*:\/\/}"
@@ -89,13 +99,19 @@ runs:
         
         # Flatten JSON to key-value lines
         #   $1: separator (default as ' 👉 ')
+        #   stdin: json
+        #   stdout: flattened key-value lines
+        #   $?: 0 if successful and non-zero otherwise
         function kit::json::flatten {
             jq -Mcr --arg sep "${1:- 👉 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
         }
         
-        # Group stdin to stdout with title
-        # $1: group title
+        # Group stdin to stderr with title
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+        #   $1: group title
+        #   stdin: logs
+        #   stderr: grouped logs
+        #   $?: 0 if successful and non-zero otherwise
         function kit::wf::group {
             echo "::group::$1"      >&2
             echo "$(< /dev/stdin)"  >&2
@@ -103,8 +119,11 @@ runs:
         }
         
         # Set stdin as value to environment with given name
-        # $1: environment variable name
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+        #   $1: environment variable name
+        #   stdin: environment variable value
+        #   stderr: grouped logs
+        #   $?: 0 if successful and non-zero otherwise
         function kit::wf::env {
             local val
             val="$(< /dev/stdin)"
@@ -115,9 +134,12 @@ runs:
         }
         
         # Set stdin as value to output of current step with given name
-        # $1: output name
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
         # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
+        #   $1: output name
+        #   stdin: output value
+        #   stderr: grouped logs
+        #   $?: 0 if successful and non-zero otherwise
         function kit::wf::output {
             local val
             val="$(< /dev/stdin)"
@@ -135,6 +157,7 @@ runs:
         CURRENT='${{ inputs.current }}'
         [[ -n '${{ inputs.kubeconfig }}' ]] && KUBECONFIG='${{ inputs.kubeconfig }}' || KUBECONFIG="${{ runner.temp }}/$CONTEXT.kubeconfig"
         EXPORT='${{ inputs.export }}'
+        VERSION='${{ inputs.version }}'
         
         kit::wf::group '📥 action inputs' << __HEREDOC__
         server:     $SERVER
@@ -157,5 +180,9 @@ runs:
         
         kubectl config view --raw=false | yq -Ce | kit::wf::group "🚢 'kubectl config view' for KUBECONFIG='$KUBECONFIG'"
         
+        kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
         
+        [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
+        
+        [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group "🚢 kubectl version for KUBECONFIG='$KUBECONFIG'"
 ...
