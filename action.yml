@@ -128,7 +128,7 @@ runs:
         CLUSTER='${{ inputs.cluster }}'; CLUSTER="${CLUSTER:-$(kit::str::extractHost "$SERVER")}"
         TOKEN='${{ inputs.token }}'
         SA='${{ inputs.sa }}'
-        CONTEXT='${{ inputs.context }}'; CONTEXT="${CONTEXT:-$SA@$CLUSTER"}"
+        CONTEXT='${{ inputs.context }}'; CONTEXT="${CONTEXT:-$SA@$CLUSTER}"
         NAMESPACE='${{ inputs.namespace }}'
         CURRENT='${{ inputs.current }}'
         KUBECONFIG='${{ inputs.kubeconfig }}'; KUBECONFIG="${KUBECONFIG:-${{ runner.temp }}/$CONTEXT.kubeconfig}"
