@@ -1,10 +1,10 @@
 ---
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
-name: Kubernetes Set Context and KUBECONFIG for Service Account (SA)
+name: KUBECONFIG for Service Account (SA)
 author: '@vbem'
-description: Create K8s context and set KUBECONFIG for service account
+description: Generates Kubernetes kubeconfig file for service account
 branding:
-  icon: settings
+  icon: key
   color: green
 
 inputs:
@@ -53,7 +53,7 @@ inputs:
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs-for-composite-actions
 outputs:
   context:
-    description: 'Context name in kubeconfig'
+    description: Context name in kubeconfig file
     value: ${{ steps.main.outputs.context }}
   kubeconfig:
     description: Path of kubeconfig file
@@ -63,22 +63,10 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Generate kubeconfig file
-      id: main
+    - id: main
       shell: bash
       run: |
         # implementation details
-
-        # Extract host from an URL
-        #   $1: URL
-        #   stdout: host
-        #   $?: 0 if successful and non-zero otherwise
-        function kit::str::extractHost {
-            local url="$1" # for Parameter Expansion & Pattern Matching
-            url="${url/#*:\/\/}"
-            url="${url/%:*}"
-            echo -n "${url/%\/*}"
-        }
 
         # Group stdin to stderr with title
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
@@ -92,44 +80,58 @@ runs:
             echo '::endgroup::'     >&2
         }
 
-        # Set stdin as value to environment with given name
-        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-        #   $1: environment variable name
-        #   stdin: environment variable value
-        #   stderr: grouped logs
-        #   $?: 0 if successful and non-zero otherwise
-        function kit::wf::env {
-            local val
-            val="$(< /dev/stdin)"
-            echo "$1<<__GITHUB_ENV__"   >> "$GITHUB_ENV"
-            echo "$val"                 >> "$GITHUB_ENV"
-            echo '__GITHUB_ENV__'       >> "$GITHUB_ENV"
-            kit::wf::group "💲 append '$1' to \$GITHUB_ENV" <<< "$val"
-        }
-
         # Set stdin as value to output of current step with given name
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
         # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
         #   $1: output name
+        #   $2: masked value in logs
         #   stdin: output value
         #   stderr: grouped logs
         #   $?: 0 if successful and non-zero otherwise
         function kit::wf::output {
             local val
             val="$(< /dev/stdin)"
-            echo "::set-output name=$1::$val" >&2
-            kit::wf::group "📤 set '$1' to step outputs" <<< "$val"
+            echo "::set-output name=$1::$val"
+            kit::wf::group "🖨️ step output '$1' has been set" <<< "${2:-$val}"
+        }
+
+        # Set stdin as value to environment with given name
+        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+        #   $1: environment variable name
+        #   $2: masked value in logs
+        #   stdin: environment variable value
+        #   $?: 0 if successful and non-zero otherwise
+        function kit::wf::env {
+            local val
+            val="$(< /dev/stdin)"
+            { # https://www.gnu.org/software/bash/manual/bash.html#Command-Grouping
+                echo "$1<<__GITHUB_ENV__"
+                echo "$val"
+                echo '__GITHUB_ENV__'
+            } >> "$GITHUB_ENV"
+            kit::wf::group "🖨️ environment variable '$1' has been set in \$GITHUB_ENV" <<< "${2:-$val}"
+        }
+
+        # Extract host from an URL
+        #   $1: URL
+        #   stdout: host
+        #   $?: 0 if successful and non-zero otherwise
+        function kit::str::extractHost {
+            local url="$1" # for Parameter Expansion & Pattern Matching
+            url="${url/#*:\/\/}"
+            url="${url/%:*}"
+            echo -n "${url/%\/*}"
         }
 
         SERVER='${{ inputs.server }}'
         CA_BASE64='${{ inputs.ca-base64 }}'
-        [[ -n '${{ inputs.cluster }}' ]] && CLUSTER='${{ inputs.cluster }}' || CLUSTER="$(kit::str::extractHost "$SERVER")"
+        CLUSTER='${{ inputs.cluster }}'; CLUSTER="${CLUSTER:-$(kit::str::extractHost "$SERVER")}"
         TOKEN='${{ inputs.token }}'
         SA='${{ inputs.sa }}'
-        [[ -n '${{ inputs.context }}' ]] && CONTEXT='${{ inputs.context }}' || CONTEXT="$SA@$CLUSTER"
+        CONTEXT='${{ inputs.context }}'; CONTEXT="${CONTEXT:-$SA@$CLUSTER"}"
         NAMESPACE='${{ inputs.namespace }}'
         CURRENT='${{ inputs.current }}'
-        [[ -n '${{ inputs.kubeconfig }}' ]] && KUBECONFIG='${{ inputs.kubeconfig }}' || KUBECONFIG="${{ runner.temp }}/$CONTEXT.kubeconfig"
+        KUBECONFIG='${{ inputs.kubeconfig }}'; KUBECONFIG="${KUBECONFIG:-${{ runner.temp }}/$CONTEXT.kubeconfig}"
         EXPORT='${{ inputs.export }}'
         VERSION='${{ inputs.version }}'
 

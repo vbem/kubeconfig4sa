@@ -10,14 +10,14 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push: # If you define neither tags(-ignore) nor branches(-ignore), the workflow will run for either branches or tags.
+  push: # If you define neither 'tags' nor 'branches', the workflow will run for either branches or tags.
     paths:
       - 'action.yml'
       - '.github/workflows/test.yml'
   workflow_dispatch:
 
 jobs:
-  CI:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,6 +35,7 @@ jobs:
 
       - name: more inputs
         id: more
+        continue-on-error: true
         uses: ./
         with:
           server: https://more-server:6443
@@ -47,17 +48,13 @@ jobs:
           current: false
           kubeconfig: ${{ steps.less.outputs.kubeconfig }}
           export: true
-          version: false
+          version: true
 
       - name: show outputs and $GITHUB_ENV
         run: |
-          echo "toJson(steps.less.outputs):"
+          echo "toJson(steps):"
           jq -Ce << __HEREDOC__
-          ${{ toJson(steps.less.outputs) }}
-          __HEREDOC__
-          echo "toJson(steps.more.outputs):"
-          jq -Ce << __HEREDOC__
-          ${{ toJson(steps.more.outputs) }}
+          ${{ toJson(steps) }}
           __HEREDOC__
           echo 'show file GITHUB_ENV'
           cat "$GITHUB_ENV"
