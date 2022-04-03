@@ -159,9 +159,11 @@ runs:
         } | kit::wf::group '🚢 kubectl config set'
         kubectl config view --raw=false | yq -Ce | kit::wf::group '🚢 kubectl config view'
 
-        [[ "$VERSION" == 'true' ]] && kubectl version -o yaml | yq -Ce | kit::wf::group '🚢 kubectl version'
-
         [[ "$EXPORT" == 'true' ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG"
         kit::wf::output 'context' <<< "$CONTEXT"
         kit::wf::output 'kubeconfig' <<< "$KUBECONFIG"
+        
+        if [[ "$VERSION" == 'true' ]]; then
+          kubectl version -o yaml | yq -Ce | kit::wf::group '🚢 kubectl version'
+        fi
 ...
