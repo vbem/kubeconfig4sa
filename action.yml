@@ -4,7 +4,7 @@ name: KUBECONFIG for Service Account (SA)
 author: '@vbem'
 description: Generates Kubernetes kubeconfig file for service account
 branding:
-  icon: key
+  icon: log-in
   color: green
 
 inputs:
