@@ -48,7 +48,7 @@ jobs:
           current: false
           kubeconfig: ${{ steps.less.outputs.kubeconfig }}
           export: true
-          version: true
+          version: false
 
       - name: show outputs and $GITHUB_ENV
         run: |

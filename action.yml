@@ -109,7 +109,7 @@ runs:
                 echo "$val"
                 echo '__GITHUB_ENV__'
             } >> "$GITHUB_ENV"
-            kit::wf::group "🖨️ environment variable '$1' has been set in \$GITHUB_ENV" <<< "${2:-$val}"
+            kit::wf::group "💲 environment variable '$1' has been set in \$GITHUB_ENV" <<< "${2:-$val}"
         }
 
         # Extract host from an URL
