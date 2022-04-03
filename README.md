@@ -3,7 +3,7 @@
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/vbem/kubeconfig4sa?label=Release&logo=github)](https://github.com/vbem/kubeconfig4sa/releases)
 [![Marketplace](https://img.shields.io/badge/GitHub%20Actions-Marketplace-blue?logo=github)](https://github.com/marketplace/actions/kubernetes-set-context-and-kubeconfig-for-service-account-sa)
 
-# Set kubeconfig for service account
+## About
 
 This action can be used to generate [*kubeconfig file*](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for [Kubernetes native *Service Accounts* (SA)](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/).
 

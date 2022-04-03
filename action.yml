@@ -135,7 +135,7 @@ runs:
         EXPORT='${{ inputs.export }}'
         VERSION='${{ inputs.version }}'
 
-        kit::wf::group '📥 action inputs' << __HEREDOC__
+        kit::wf::group '📩 action inputs' << __HEREDOC__
         server:     $SERVER
         cluster:    $CLUSTER
         sa:         $SA
