@@ -25,7 +25,7 @@ Meanwhile, as mentioned in GitHub official document: [**Never use structured dat
     token:      ${{ secrets.K8S_SA_TOKEN }}
     namespace:  MYNS
 
-- name: Deploy K8s mainfest files
+- name: Deploy K8s manifest files
   run: kubectl apply -f .
 ```
 
@@ -33,7 +33,7 @@ Meanwhile, as mentioned in GitHub official document: [**Never use structured dat
 
 ## SA preparation
 
-Assuming you need to create a service account `deployer` for namespace `MYNS`, and then deploy K8s mainfest files via this action.
+Assuming you need to create a service account `deployer` for namespace `MYNS`, and then deploy K8s manifest files via this action.
 
 First, you may need to [create a SA](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#service-account-tokens) in you K8s cluster:
 ```shell
@@ -52,7 +52,7 @@ ca=$(kubectl get secret $as -n MYNS -o jsonpath='{.data.ca\.crt}') && echo "K8S_
 to=$(kubectl get secret $as -n MYNS -o jsonpath='{.data.token}'|base64 -d) && echo "K8S_SA_TOKEN: $to"
 ```
 
-Remember to store both `K8S_CA_BASE64` & `K8S_SA_TOKEN` in your Git repo's [*Encrypted secrets*](https://docs.github.com/en/actions/security-guides/encrypted-secrets) or [*Environment secrets*](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets).
+Remember to store both `K8S_CA_BASE64` & `K8S_SA_TOKEN` in your Git repository [*Encrypted secrets*](https://docs.github.com/en/actions/security-guides/encrypted-secrets) or [*Environment secrets*](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets).
 
 ## Inputs
 
